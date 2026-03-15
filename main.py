@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from db.database import SessionCreator
 import crud
 from schemas import AuthorDTO, AuthorAddDTO, BookDTO, BookAddDTO, AuthorRelDTO, BookRelDTO
+from db.create_db import create_tables, insert_data
 
 
 app = FastAPI()
@@ -43,11 +44,11 @@ def get_single_author(
     return selected_author
 
 
-@app.get("/author_page/{skip}-{limit}", response_model=list[AuthorRelDTO])
+@app.get("/author_page/", response_model=list[AuthorRelDTO])
 def get_list_of_authors(
+    db: Annotated[Session, Depends(get_db)],
     skip: int,
-    limit: int,
-    db: Annotated[Session, Depends(get_db)]
+    limit: int = 10,
 ):
     return crud.select_authors(db=db, skip=skip, limit=limit)
 
@@ -76,15 +77,17 @@ def get_books_by_author(
 
     return author.books
 
-@app.get("/book_page/{skip}-{limit}", response_model=list[BookRelDTO])
+@app.get("/author_page/", response_model=list[BookRelDTO])
 def get_list_of_books(
+    db: Annotated[Session, Depends(get_db)],
     skip: int,
-    limit: int,
-    db: Annotated[Session, Depends(get_db)]
+    limit: int = 10,
 ):
     return crud.select_books(db=db, skip=skip, limit=limit)
 
 
 
 if __name__=="__main__":
+    create_tables()
+    insert_data()
     run("main:app", host="127.0.0.1", port=8000, reload=True)
