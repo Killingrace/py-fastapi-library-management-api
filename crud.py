@@ -4,10 +4,6 @@ from db.models import AuthorORM, BookORM
 from schemas import AuthorAddDTO, AuthorDTO, BookAddDTO, BookDTO
 
 
-def make_indexes(page):
-    return ((page - 1) * 5, page * 5)
-
-
 def create_author(db: Session, new_author: AuthorAddDTO) -> AuthorORM:
     new_db_author = AuthorORM(
         name=new_author.name,
@@ -29,12 +25,11 @@ def read_single_author(db: Session, author_id: int) -> AuthorORM | None:
     return db.execute(query).scalars().first()
 
 
-def select_authors(db: Session, page: int) -> list[AuthorORM] | None:
-    start, top = make_indexes(page)
+def select_authors(db: Session, skip: int, limit: int) -> list[AuthorORM]:
     query = (
         select(AuthorORM)
-        .offset(start)
-        .limit(top)
+        .offset(skip)
+        .limit(limit)
         .options(selectinload(AuthorORM.books))
     )
     return db.execute(query).scalars().all() # type: ignore
@@ -73,12 +68,11 @@ def read_books_by_author(db: Session, author_id: int) -> list[BookORM]:
     return db.execute(query).scalars().all() # type: ignore
 
 
-def select_books(db: Session, page: int) -> list[BookORM]:
-    start, top = make_indexes(page)
+def select_books(db: Session, skip: int, limit: int) -> list[BookORM]:
     query = (
         select(BookORM)
-        .offset(start)
-        .limit(top)
+        .offset(skip)
+        .limit(limit)
         .options(joinedload(BookORM.author))
     )
     return db.execute(query).scalars().all() # type: ignore

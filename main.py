@@ -3,10 +3,10 @@ from uvicorn import run
 from fastapi import FastAPI, Depends
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
-# from db.create_db import create_tables, insert_data
 from db.database import SessionCreator
 import crud
 from schemas import AuthorDTO, AuthorAddDTO, BookDTO, BookAddDTO, AuthorRelDTO, BookRelDTO
+
 
 app = FastAPI()
 
@@ -43,12 +43,13 @@ def get_single_author(
     return selected_author
 
 
-@app.get("/author_page/{page}", response_model=list[AuthorRelDTO])
+@app.get("/author_page/{skip}-{limit}", response_model=list[AuthorRelDTO])
 def get_list_of_authors(
-    page: int,
+    skip: int,
+    limit: int,
     db: Annotated[Session, Depends(get_db)]
 ):
-    return crud.select_authors(db=db, page=page)
+    return crud.select_authors(db=db, skip=skip, limit=limit)
 
 
 
@@ -75,12 +76,13 @@ def get_books_by_author(
 
     return author.books
 
-@app.get("/book_page/{page}", response_model=list[BookRelDTO])
+@app.get("/book_page/{skip}-{limit}", response_model=list[BookRelDTO])
 def get_list_of_books(
-    page: int,
+    skip: int,
+    limit: int,
     db: Annotated[Session, Depends(get_db)]
 ):
-    return crud.select_books(db=db, page=page)
+    return crud.select_books(db=db, skip=skip, limit=limit)
 
 
 

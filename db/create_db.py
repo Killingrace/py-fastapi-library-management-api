@@ -187,5 +187,7 @@ def insert_data():
         ]
         conn.add_all(books)
         conn.commit()
-create_tables()
-insert_data()
+
+if __name__ == "__main__":
+    create_tables()
+    insert_data()
