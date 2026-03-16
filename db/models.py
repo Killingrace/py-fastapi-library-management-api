@@ -1,7 +1,9 @@
+from typing import Annotated
 from datetime import date
+
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import mapped_column, relationship, Mapped
-from typing import Annotated
+
 from db.database import Base
 
 
@@ -16,7 +18,10 @@ class AuthorORM(Base):
     name: Mapped[str] = mapped_column(String(256), unique=True)
     bio: Mapped [str_512]
 
-    books: Mapped[list["BookORM"]] = relationship(back_populates="author")
+    books: Mapped[list["BookORM"]] = relationship(
+        back_populates="author",
+        cascade="all, delete-orphan"
+    )
 
 
 class BookORM(Base):
